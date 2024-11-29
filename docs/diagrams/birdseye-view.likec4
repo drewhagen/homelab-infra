@@ -1,0 +1,85 @@
+specification {
+    element person
+    element system
+    element container
+}
+
+model {
+    admin = person "Administrator" {
+        description "Manages the Proxmox VE environment"
+    }
+
+    homelab = system "Home Lab" {
+        description "Personal infrastructure for learning and experimentation"
+        proxmox_ve = system "Proxmox VE" {
+            description "Hypervisor managing VMs and containers"
+
+            proxmox = container "Proxmox VE Core" {
+                description "Core hypervisor functionalities"
+                style {
+                    icon https://www.geonov.fr/img/actualites/proxmox.png
+                }
+            }
+
+            nixos = container "NixOS" {
+                description "Declarative OS configuration for the Proxmox host"
+                style {
+                    icon tech:nix
+                }
+            }
+
+            opentofu = container "OpenTofu" {
+                description "Infrastructure as Code tool provisioning VMs and resources"
+                style {
+                    icon https://www.itwonderlab.com/wp-content/uploads/logos/Others/OpenTofuIco.svg
+                }
+            }
+
+            ansible = container "Ansible" {
+                description "Automates post-provisioning configuration tasks"
+                style {
+                    icon https://raw.githubusercontent.com/benc-uk/icon-collection/e33ee714d05a24a81cf6ccd967ef34b22cb77e65/azure-docs/ansible.svg
+                }
+            }
+
+            kubernetes = container "Kubernetes" {
+                description "Orchestrates containerized applications"
+                style {
+                    icon https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Kubernetes_logo_without_workmark.svg/1234px-Kubernetes_logo_without_workmark.svg.png
+                }
+            }
+        }
+    }
+    
+
+    // Relationships
+    admin -> proxmox "Administers"
+    proxmox -> nixos "Hosts"
+    nixos -> opentofu "Configured by"
+    opentofu -> proxmox "Provisions VMs on"
+    proxmox -> ansible "Manages VMs configured by"
+    ansible -> kubernetes "Deploys and configures"
+    kubernetes -> proxmox "Runs on VMs managed by"
+}
+
+views {
+    view index {
+        include *
+        style admin {
+            color red
+            shape person
+        }
+        style homelab {
+            color green
+            shape cylinder
+        }
+    }
+    view proxmox_ve of homelab {
+        include *
+        include proxmox
+        include nixos
+        include opentofu
+        include ansible
+        include kubernetes
+    }
+}
